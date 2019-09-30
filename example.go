@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var rt = read.Through{Proxy: proxy.NewInMemoryProxy(100)}
+var rt = read.Through{Proxy: proxy.NewInMemoryProxy()}
 
 func main() {
 	// 1st exec takes 5 sec
