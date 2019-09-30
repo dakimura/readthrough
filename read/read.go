@@ -1,49 +1,34 @@
 package read
 
-//var rt *read.ReadThrough
+import "github.com/dakimura/readthrough/proxy"
 
-type Proxy interface {
-	Get(key string) (bool, interface{}, error)
-	Set(key string, val interface{}) error
-}
-
-func NewInMemoryProxy(size int) Proxy {
-	return &ThroughInMemory{m: make(map[string]interface{}, size)}
-}
-
-type ThroughInMemory struct {
-	m map[string]interface{}
-}
-
-func (tim *ThroughInMemory) Get(key string) (bool, interface{}, error) {
-	val, ok := tim.m[key]
-	return ok, val, nil
-}
-
-func (tim *ThroughInMemory) Set(key string, val interface{}) error {
-	tim.m[key] = val
-	return nil
-}
-
+// Through is the
 type Through struct {
-	Proxy Proxy
+	Proxy proxy.Proxy
 }
 
-func (rt *Through) Execute(key string, req func() (interface{}, error)) (interface{}, error) {
+// Get reads a value through the proxy and set the cache
+func (rt *Through) Get(key string, req func() (interface{}, error)) (interface{}, error) {
+	// Get Get Cache from Proxy
 	ok, val, err := rt.Proxy.Get(key)
+
+	// return the cache if found
 	if ok {
 		return val, err
 	}
 
+	// Get from origin
 	val, err = req()
 	if err != nil {
 		return val, err
 	}
 
+	// Set the value from origin to the proxy cache
 	err = rt.Proxy.Set(key, val)
 	if err != nil {
 		return nil, err
 	}
 
+	// return the value got from origin
 	return val, err
 }

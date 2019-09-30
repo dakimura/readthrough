@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"github.com/dakimura/readthrough/read"
+	"github.com/dakimura/readthrough/proxy"
 	"time"
 )
 
-var rt = read.Through{Proxy: read.NewInMemoryProxy(100)}
+var rt = read.Through{Proxy: proxy.NewInMemoryProxy(100)}
 
 func main() {
 	// 1st exec takes 5 sec
@@ -17,7 +18,7 @@ func main() {
 }
 
 func try() {
-	val, _ := rt.Execute("foo",
+	val, _ := rt.Get("foo",
 		func() (interface{}, error) {
 			// Some slow process (e.g. http access, DB access)
 			time.Sleep(5 * time.Second)
