@@ -13,17 +13,14 @@ Also you can implement your own caching (e.g. redis or memcache) to customize th
 
 ## Installation
 ```go
-import (
-	"github.com/dakimura/readthrough/proxy"
-	"github.com/dakimura/readthrough/read"
-)
+import "github.com/dakimura/readthrough"
 ```
 
 ## Usage
 The usage of this library is to just wrap a slow function that you want to improve performance
 like as follows:
 ```go
-rt := read.Through{Proxy: proxy.NewInMemoryProxy()}
+rt := readthrough.Through{Proxy: readthrough.NewInMemoryProxy()}
 
 value, _ := rt.Get("cacheKey", someSlowFunction)
 ```
@@ -32,7 +29,7 @@ When `someSlowFunction` is called with the `cacheKey`, the returned values are c
 
 Note: We assume that your application has a slow function which returns `(interface{}, error)` .
 ```go
-func someSlowProcess() (interface{}, error) {
+func someSlowFunction() (interface{}, error) {
 	// example
 	time.Sleep(3 * time.Second)
 	return "hoge", nil
@@ -44,32 +41,40 @@ please wrap the function and make another function which returns `(interface{}, 
 ## Example Code
 
 ```go
+package main
+
 import (
 	"fmt"
-	"github.com/dakimura/readthrough/proxy"
-	"github.com/dakimura/readthrough/read"
+	"github.com/dakimura/readthrough"
 	"time"
 )
 
-var rt = read.Through{Proxy: proxy.NewInMemoryProxy()}
+var rt = readthrough.Through{Proxy: readthrough.NewInMemoryProxy()}
 
 func main() {
-	fmt.Println("current time: " + time.Now().String())
+	fmt.Println("before try... current time: " + time.Now().String())
 
 	cacheKey := "hello"
 	// 1st try takes 3 seconds
-	value, _ := rt.Get(cacheKey, someSlowProcess)
+	value, _ := rt.Get(cacheKey, someSlowFunction)
 	fmt.Println(value.(string))
 
 	// 2nd try takes almost 0 second
-	value, _ = rt.Get(cacheKey, someSlowProcess)
+	value, _ = rt.Get(cacheKey, someSlowFunction)
 	fmt.Println(value.(string))
 }
 
-func someSlowProcess() (interface{}, error) {
+func someSlowFunction() (interface{}, error) {
 	time.Sleep(3 * time.Second)
 	return "current time: " + time.Now().String(), nil
 }
+```
+
+Output:
+```go
+before try... current time: 2019-09-30 19:02:02.941276 +0900 JST m=+0.000198594
+current time: 2019-09-30 19:02:05.943923 +0900 JST m=+3.002818374
+current time: 2019-09-30 19:02:05.943923 +0900 JST m=+3.002818374
 ```
 
 ## Original Proxy

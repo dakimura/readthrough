@@ -1,4 +1,4 @@
-package proxy
+package readthrough
 
 // Proxy behaves as a read-through cache for an origin (DB, API server, etc)
 type Proxy interface {

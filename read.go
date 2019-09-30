@@ -1,10 +1,8 @@
-package read
+package readthrough
 
-import "github.com/dakimura/readthrough/proxy"
-
-// Through is the
+// Through is accessor for a read-through cache proxy and an origin
 type Through struct {
-	Proxy proxy.Proxy
+	Proxy Proxy
 }
 
 // Get reads a value through the proxy and set the cache
